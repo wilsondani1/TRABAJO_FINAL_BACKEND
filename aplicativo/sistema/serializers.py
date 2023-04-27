@@ -6,7 +6,7 @@ class CategoriasSerializer(ModelSerializer):
     class Meta:
         model = CategoriasModel
         fields = '__all__'
-    
+
     def delete(self):
         self.instance.estado = False
         self.instance.save()
@@ -26,14 +26,19 @@ class DetallesVentaSerializer(ModelSerializer):
     class Meta:
         model = DetallesVentaModel
         fields = '__all__'
+        extra_kwargs = {
+            'venta_id': {'read_only': True},
+        }
 
 class VentasSerializer(ModelSerializer):
-    cliente = ClientesSerializer()
-    detalle_venta = DetallesVentaSerializer(many=True)
+    cliente = ClientesSerializer(source='cliente_id')
+    detalles_venta = DetallesVentaSerializer(source='detallesVenta', many=True)
     class Meta:
         model = VentasModel
         fields = '__all__'
-
+        extra_kwargs = {
+            'cliente_id': {'read_only': True},
+        }
 
 class PagosSerializer(ModelSerializer):
     class Meta:
