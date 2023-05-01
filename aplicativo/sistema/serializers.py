@@ -16,6 +16,11 @@ class ProductosSerializer(ModelSerializer):
     class Meta:
         model = ProductosModel
         fields = '__all__'
+    
+    def to_representation(self, instance):
+        representacion = super().to_representation(instance)
+        representacion['foto'] = instance.foto.url
+        return representacion
 
 class ClientesSerializer(ModelSerializer):
     class Meta:

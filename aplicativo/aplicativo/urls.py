@@ -15,9 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 
 from rest_framework import permissions
+from rest_framework_simplejwt import views as jwt_views
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -34,13 +38,14 @@ public=True,
 permission_classes=[permissions.AllowAny],
 )
 
-
+# https://coffeebytes.dev/django-rest-framework-y-jwt-para-autenticar-usuarios/
 
 
 urlpatterns = [
     path('swagger/',schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/',schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/',admin.site.urls),
-    path('sistema/',include('sistema.urls')),
-
+    path('sistema/', include('sistema.urls')),
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]

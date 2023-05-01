@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+from cloudinary import config, uploader, api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     #aqui registro mi alpicacion /rest_framework
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'sistema',
 ]
@@ -81,14 +84,14 @@ WSGI_APPLICATION = 'aplicativo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': 'aplicativo',
-        # 'HOST': 'localhost',
-        # 'USER': 'postgres',
-        # 'PASSWORD': 'data23',
-        #'PORT': 5432
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'aplicativo',
+        'HOST': 'localhost',
+        'USER': 'postgres',
+        'PASSWORD': 'data23',
+        'PORT': 5432
     }
 }
 
@@ -136,3 +139,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+EMAIL_HOST = 'smtp.googlemail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('USER_MAIL')
+EMAIL_HOST_PASSWORD = config('USER_MAIL_PASSWORD')
+EMAIL_USE_TLS = True
