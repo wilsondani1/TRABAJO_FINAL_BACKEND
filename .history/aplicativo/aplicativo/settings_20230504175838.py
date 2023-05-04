@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackEnd"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = 'smtp.googlemail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'grupo.backend@gmail.com'
