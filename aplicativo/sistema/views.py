@@ -14,6 +14,38 @@ from django.db import transaction
 from cloudinary import uploader
 
 # Create your views here.
+class RegistroUsuario(APIView):
+    def post(self, request: Request):
+        serializador= RegistroUsuarioSerializer(data = request.data)
+        if serializador.is_valid():
+            password = serializador.validated_data.get('password')
+            nuevo_usuario = Usuario(**serializador.validated_data)
+            nuevo_usuario.set_password(password)
+
+            nuevo_usuario.save()
+
+            return Response(data={
+                'message': 'Usuario creado exitosamente'
+            }, status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response(data={
+                'message': 'Error al crear el usuario',
+                'content': serializador.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+class Perfilusuario(generics.GenericAPIView):
+    serializer_class = Personserializer
+
+    def get(self, request: Request):
+        print(request.user)
+        print(request.auth)
+        usuarios = Usuario.objects.all()
+        serializador = Personserializer(usuarios, many=True)
+        return Response(data = {
+            'content': serializador.data
+        }, status=status.HTTP_200_OK)
+
 class CategoriasView(generics.ListCreateAPIView):
     #queryset = CategoriasModel.objects.all()
     #serializer_class = CategoriasSerializer
@@ -133,67 +165,65 @@ class ProductosView(generics.ListCreateAPIView):
 
     def get(self, request: Request):
 
-        #total_productos = ProductosModel.objects.count()
         productos = ProductosModel.objects.all()[skip:take]
 
-        #informacion_paginacion = paginationSerializer(total_productos, page, perPage)
         data_serializada = ProductosSerializer(instance=productos, many=True)
         
         return Response(data={
             'content': data_serializada.data,
         }, status=status.HTTP_200_OK)
 
-class ProductoView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ProductosModel.objects.all()
-    serializer_class = ProductosSerializer
+# class ProductoView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = ProductosModel.objects.all()
+#     serializer_class = ProductosSerializer
 
-class PagosView(generics.ListCreateAPIView):
-    queryset = PagosModel.objects.all()
-    serializer_class = PagosSerializer
+# class PagosView(generics.ListCreateAPIView):
+#     queryset = PagosModel.objects.all()
+#     serializer_class = PagosSerializer
 
-class PagoView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = PagosModel.objects.all()
-    serializer_class = PagosSerializer
+# class PagoView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = PagosModel.objects.all()
+#     serializer_class = PagosSerializer
 
-    def delete(self, request, pk):
-        self.serializer_class(self.get_queryset().get(id=pk)).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#     def delete(self, request, pk):
+#         self.serializer_class(self.get_queryset().get(id=pk)).delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class VentasView(generics.ListCreateAPIView):
-    queryset = VentasModel.objects.all()
-    serializer_class = VentasSerializer
+# class VentasView(generics.ListCreateAPIView):
+#     queryset = VentasModel.objects.all()
+#     serializer_class = VentasSerializer
 
-    @transaction.atomic
-    def post(self, request):
-        try:
-            cliente = ClientesModel(
-                nombre=request.data['cliente']['nombre'],
-                correo=request.data['cliente']['correo'],
-                dni=request.data['cliente']['dni'],
-            )
-            cliente.save()
+#     @transaction.atomic
+#     def post(self, request):
+#         try:
+#             cliente = ClientesModel(
+#                 nombre=request.data['cliente']['nombre'],
+#                 correo=request.data['cliente']['correo'],
+#                 dni=request.data['cliente']['dni'],
+#             )
+#             cliente.save()
 
-            usuario = User.objects.get(id=request.data['usuario_id'])
-            venta = VentasModel(
-                observacion=request.data['observacion'],
-                usuario_id=usuario,
-                cliente_id=cliente,
-            )
-            venta.save()
+#             usuario = User.objects.get(id=request.data['usuario_id'])
+#             venta = VentasModel(
+#                 observacion=request.data['observacion'],
+#                 usuario_id=usuario,
+#                 cliente_id=cliente,
+#             )
+#             venta.save()
 
-            for detalle in request.data['detalles_venta']:
-                producto = ProductosModel.objects.get(id=detalle['producto_id'])
-                detalle = DetallesVentaModel(
-                    cantidad=detalle['cantidad'],
-                    producto_id=producto,
-                    venta_id=venta,
-                )
-                detalle.save()
-            return Response({
-                'message': 'Venta registrada correctamente'
-            }, status=status.HTTP_201_CREATED)
+#             for detalle in request.data['detalles_venta']:
+#                 producto = ProductosModel.objects.get(id=detalle['producto_id'])
+#                 detalle = DetallesVentaModel(
+#                     cantidad=detalle['cantidad'],
+#                     producto_id=producto,
+#                     venta_id=venta,
+#                 )
+#                 detalle.save()
+#             return Response({
+#                 'message': 'Venta registrada correctamente'
+#             }, status=status.HTTP_201_CREATED)
         
-        except Exception as e:
-            return Response({
-                'error': str(e)
-            }, status=status.HTTP_400_BAD_REQUEST)
+#         except Exception as e:
+#             return Response({
+#                 'error': str(e)
+#             }, status=status.HTTP_400_BAD_REQUEST)

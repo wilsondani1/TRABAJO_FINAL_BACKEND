@@ -11,8 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+from os import environ
+from dotenv import load_dotenv
 from cloudinary import config, uploader, api
+from datetime import timedelta
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +31,7 @@ SECRET_KEY = 'django-insecure-e4rdjx1vlq!0zh9g+w@o$q4mv*%r7rxy8p+hi637$a%x!h*umx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,11 +44,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'drf_yasg',
-    #aqui registro mi alpicacion /rest_framework
-    'rest_framework',
-    'rest_framework_simplejwt',
     'corsheaders',
+    'rest_framework',
     'sistema',
+    'cloudinary'
 ]
 
 MIDDLEWARE = [
@@ -84,14 +87,12 @@ WSGI_APPLICATION = 'aplicativo.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'aplicativo',
+        'NAME': environ.get('NOMBRE_DB'),
         'HOST': 'localhost',
-        'USER': 'postgres',
-        'PASSWORD': 'data23',
-        'PORT': 5432
+        'USER': environ.get('USER_DB'),
+        'PASSWORD': environ.get('PASSWORD_DB'),
+        'PORT': environ.get('PORT_DB'), 
     }
 }
 
@@ -140,15 +141,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+AUTH_USER_MODEL='sistema.Usuario'
+
+config(
+    cloud_name = environ.get('CLOUDINARY_NAME'),
+    api_key = environ.get('CLOUDINARY_API_KEY'),
+    api_secret = environ.get('CLOUDINARY_API_SECRET'),
+    secure = True
+)
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackEnd"
-EMAIL_HOST = 'smtp.googlemail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'grupo.backend@gmail.com'
-EMAIL_HOST_PASSWORD = config('Backend2023')
-EMAIL_USE_TLS = True
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackEnd"
+# EMAIL_HOST = 'smtp.googlemail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'grupo.backend@gmail.com'
+# EMAIL_HOST_PASSWORD = config('Backend2023')
+# EMAIL_USE_TLS = True
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1, minutes=15)
+}
